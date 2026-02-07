@@ -16,7 +16,6 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom'],
-            icons: ['@mui/icons-material', '@mui/material'], // If used, otherwise generic split
           }
         }
       }
