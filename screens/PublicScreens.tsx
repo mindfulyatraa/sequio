@@ -73,44 +73,60 @@ export const Landing: React.FC<PublicProps> = ({ onNavigate }) => {
                     </div>
 
                     {/* Visual Mockup */}
-                    <div className="mt-20 relative mx-auto max-w-4xl">
+                    <div className="mt-20 relative mx-auto max-w-5xl">
                         <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-purple-500/30 rounded-2xl blur-2xl opacity-50"></div>
                         <div className="relative bg-[#0B0B15]/80 border border-white/10 rounded-2xl p-4 md:p-8 backdrop-blur-md shadow-2xl">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                                {/* Left: Chat Preview */}
-                                <div className="text-left">
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* WhatsApp Preview */}
+                                <div className="text-left bg-slate-900/50 p-6 rounded-xl border border-white/5">
                                     <div className="flex items-center gap-3 mb-6">
                                         <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
                                             <Icon name="chat" className="text-green-500 text-xl" filled />
                                         </div>
-                                        <span className="font-bold text-white text-lg">Instant WhatsApp Alerts</span>
+                                        <span className="font-bold text-white text-lg">WhatsApp Alerts</span>
                                     </div>
                                     <div className="space-y-4">
-                                        <div className="bg-slate-800/80 p-4 rounded-xl border border-white/5 max-w-[320px] shadow-lg">
-                                            <p className="text-xs text-slate-500 mb-1 font-semibold uppercase tracking-wide">YouTube Monitor • Just now</p>
-                                            <p className="text-sm text-white font-medium leading-snug">🚀 New Video: "The Future of AI" by TechCrunch is out! Watch now.</p>
-                                        </div>
-                                        <div className="bg-slate-800/80 p-4 rounded-xl border border-white/5 max-w-[320px] opacity-60 shadow-lg">
-                                            <p className="text-xs text-slate-500 mb-1 font-semibold uppercase tracking-wide">YouTube Monitor • 2h ago</p>
-                                            <p className="text-sm text-white font-medium leading-snug">🎬 Summary for "Coding with GPT-5" is ready.</p>
+                                        <div className="bg-slate-800 p-4 rounded-xl border border-white/5 shadow-lg relative">
+                                            <div className="absolute -left-2 top-4 w-2 h-3 bg-slate-800 clip-path-triangle"></div>
+                                            <p className="text-[10px] text-slate-400 mb-1 font-bold uppercase tracking-wide">YouTube Monitor • Just now</p>
+                                            <p className="text-sm text-white font-medium leading-relaxed">
+                                                🚀 <strong>New Upload:</strong> "The Future of AI" by TechCrunch.<br />
+                                                <span className="text-slate-400 text-xs mt-1 block">Click to watch summary or video.</span>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Right: Stats */}
-                                <div className="hidden md:flex flex-col gap-3">
-                                    {[
-                                        { label: 'Active Monitors', value: '12', color: 'text-white' },
-                                        { label: 'Notifications Sent', value: '1,429', color: 'text-white' },
-                                        { label: 'AI Tokens Used', value: '84%', color: 'text-white' }
-                                    ].map((stat) => (
-                                        <div key={stat.label} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
-                                            <span className="text-sm font-medium text-slate-300">{stat.label}</span>
-                                            <span className={`text-sm font-bold ${stat.color}`}>{stat.value}</span>
+                                {/* Telegram Preview */}
+                                <div className="text-left bg-slate-900/50 p-6 rounded-xl border border-white/5">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                            <Icon name="send" className="text-blue-400 text-xl" filled />
                                         </div>
-                                    ))}
+                                        <span className="font-bold text-white text-lg">Telegram Notifications</span>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="bg-slate-800 p-4 rounded-xl border border-white/5 shadow-lg relative">
+                                            <div className="absolute -left-2 top-4 w-2 h-3 bg-slate-800 clip-path-triangle"></div>
+                                            <p className="text-[10px] text-blue-400 mb-1 font-bold uppercase tracking-wide">Sequio Bot • 2m ago</p>
+                                            <p className="text-sm text-white font-medium leading-relaxed">
+                                                🎬 <strong>Summary Ready:</strong> "Coding with GPT-5"<br />
+                                                <span className="text-slate-400 text-xs mt-2 block bg-black/20 p-2 rounded border-l-2 border-blue-500">
+                                                    "This video explains how the new context window allows for entire codebase refactoring..."
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+
+                            <div className="mt-8 text-center border-t border-white/5 pt-6">
+                                <p className="text-slate-400 text-sm">
+                                    Get instant summaries & links delivered to your favorite app.
+                                </p>
+                            </div>
+
                         </div>
                     </div>
                 </div>
