@@ -1,12 +1,22 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '../types';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '../utils/supabase';
+
+// Map Supabase User to our App User type if needed, or use Supabase type
+interface AppUser {
+  id: string;
+  email?: string;
+  name?: string;
+  avatar?: string;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
+  session: Session | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -20,79 +30,86 @@ export const useAuth = () => {
   return context;
 };
 
-// Mock user database
-const MOCK_USER: User = {
-  id: 'u_123',
-  name: 'Alex Rivers',
-  email: 'alex@flow.io',
-  avatar: 'https://picsum.photos/40/40?random=1'
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for persisted session
-    const storedUser = localStorage.getItem('yt_monitor_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    // 1. Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0],
+          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.user_metadata?.name || 'User')}&background=random`
+        });
+      }
+      setIsLoading(false);
+    });
+
+    // 2. Listen for changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0],
+          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.user_metadata?.name || 'User')}&background=random`
+        });
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
-    return new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        // Simple mock validation
-        if (password.length < 6) {
-          reject(new Error('Password must be at least 6 characters'));
-          return;
-        }
-        // In a real app, we'd validate against a backend. 
-        // Here we just simulate a successful login for any valid-looking input
-        // or strictly check against our mock user for demo purposes.
-        const loggedInUser = { ...MOCK_USER, email: email };
-        setUser(loggedInUser);
-        localStorage.setItem('yt_monitor_user', JSON.stringify(loggedInUser));
-        resolve();
-      }, 800); // Simulate network delay
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
     });
+    if (error) throw error;
   };
 
   const signup = async (name: string, email: string, password: string) => {
-    return new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        if (!email.includes('@')) {
-           reject(new Error('Invalid email address'));
-           return;
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name: name,
         }
-        const newUser: User = {
-          id: `u_${Math.random().toString(36).substr(2, 9)}`,
-          name,
-          email,
-          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4F46E5&color=fff`
-        };
-        setUser(newUser);
-        localStorage.setItem('yt_monitor_user', JSON.stringify(newUser));
-        resolve();
-      }, 1000);
+      }
     });
+
+    if (error) throw error;
+    // Note: By default Supabase waits for email verification. 
+    // If you want auto-login, you need to disable "Confirm email" in Supabase Dashboard -> Auth -> Providers -> Email
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('yt_monitor_user');
+    setSession(null);
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isLoading, 
-      login, 
-      signup, 
+    <AuthContext.Provider value={{
+      user,
+      session,
+      isLoading,
+      login,
+      signup,
       logout,
-      isAuthenticated: !!user 
+      isAuthenticated: !!user
     }}>
       {children}
     </AuthContext.Provider>
