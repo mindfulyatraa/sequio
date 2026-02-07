@@ -373,7 +373,7 @@ export const Signup: React.FC<PublicProps> = ({ onNavigate }) => {
         setLoading(true);
         try {
             await signup(name, email, password);
-            onNavigate('DASHBOARD');
+            onNavigate('ONBOARDING');
         } catch (err: any) {
             setError(err.message || 'Failed to create account');
         } finally {

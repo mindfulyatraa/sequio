@@ -1,7 +1,8 @@
-export type ScreenType = 
+export type ScreenType =
   | 'LANDING'
   | 'LOGIN'
   | 'SIGNUP'
+  | 'ONBOARDING'
   | 'DASHBOARD'
   | 'PLAYLIST_DETAIL'
   | 'REMINDERS'

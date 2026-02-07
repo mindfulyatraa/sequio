@@ -4,6 +4,7 @@ import { ScreenType } from './types';
 import { Dashboard, PlaylistDetail, Settings, Reminders, VideoSummary } from './screens/UserScreens';
 import { AdminDashboard, AdminQueues, CostAnalysis } from './screens/AdminScreens';
 import { Landing, Login, Signup } from './screens/PublicScreens';
+import { Onboarding } from './screens/Onboarding';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const AppContent: React.FC = () => {
@@ -41,6 +42,8 @@ const AppContent: React.FC = () => {
         return <Login onNavigate={setCurrentScreen} />;
       case 'SIGNUP':
         return <Signup onNavigate={setCurrentScreen} />;
+      case 'ONBOARDING':
+        return <Onboarding onNavigate={setCurrentScreen} />;
       case 'DASHBOARD':
         return <Dashboard />;
       case 'PLAYLIST_DETAIL':

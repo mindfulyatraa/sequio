@@ -12,19 +12,18 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ currentScreen, onNavigate, children }) => {
   const { logout } = useAuth();
 
-  // For Landing, Login, Signup pages, render without sidebar
-  if (['LANDING', 'LOGIN', 'SIGNUP'].includes(currentScreen)) {
+  // For Landing, Login, Signup, Onboarding pages, render without sidebar
+  if (['LANDING', 'LOGIN', 'SIGNUP', 'ONBOARDING'].includes(currentScreen)) {
     return <>{children}</>;
   }
 
   const NavItem = ({ id, icon, label, hasDot }: { id: ScreenType, icon: string, label: string, hasDot?: boolean }) => (
     <button
       onClick={() => onNavigate(id)}
-      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative group ${
-        currentScreen === id
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative group ${currentScreen === id
           ? 'bg-primary text-white shadow-lg shadow-primary/20'
           : 'text-slate-400 hover:bg-white/5 hover:text-white'
-      }`}
+        }`}
     >
       <Icon name={icon} className="text-[22px]" filled={currentScreen === id} />
       <span className="text-sm font-medium">{label}</span>
@@ -55,14 +54,14 @@ export const Layout: React.FC<LayoutProps> = ({ currentScreen, onNavigate, child
           <NavItem id="PLAYLIST_DETAIL" icon="playlist_play" label="Playlists" />
           <NavItem id="REMINDERS" icon="notification_important" label="Reminders" hasDot />
           <NavItem id="SETTINGS" icon="settings" label="Settings" />
-          
+
           {/* Admin Items (Hidden from main UI logic for now, accessible if needed) */}
           {currentScreen.startsWith('ADMIN') && (
-             <>
-               <div className="my-4 border-t border-border"></div>
-               <p className="px-3 text-xs font-bold text-slate-500 uppercase mb-2">Admin</p>
-               <NavItem id="ADMIN_DASHBOARD" icon="admin_panel_settings" label="Overview" />
-             </>
+            <>
+              <div className="my-4 border-t border-border"></div>
+              <p className="px-3 text-xs font-bold text-slate-500 uppercase mb-2">Admin</p>
+              <NavItem id="ADMIN_DASHBOARD" icon="admin_panel_settings" label="Overview" />
+            </>
           )}
         </nav>
 
@@ -77,11 +76,11 @@ export const Layout: React.FC<LayoutProps> = ({ currentScreen, onNavigate, child
               Sync Now
             </button>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => {
-                logout();
-                onNavigate('LANDING');
+              logout();
+              onNavigate('LANDING');
             }}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-danger/10 hover:text-danger transition-colors"
           >
