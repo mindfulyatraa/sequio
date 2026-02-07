@@ -116,49 +116,51 @@ export const Landing: React.FC<PublicProps> = ({ onNavigate }) => {
                 </div>
             </main>
 
-            {/* Features Section */}
-            <section className="py-24 bg-[#101022]">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-                        <div className="max-w-2xl">
-                            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-4">
-                                Powerful Monitoring Features
-                            </h2>
-                            <p className="text-lg text-slate-400">
-                                Everything you need to stay on top of your favorite content creators without getting lost in the feed.
-                            </p>
-                        </div>
+            {/* Social Proof / Trusted By */}
+            <div className="py-10 border-y border-white/5 bg-white/[0.02]">
+                <div className="max-w-7xl mx-auto px-6 text-center">
+                    <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-6">Trusted by Content Creators from</p>
+                    <div className="flex flex-wrap justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                        {['YouTube', 'Patreon', 'Discord', 'Twitch', 'Shopify'].map((brand) => (
+                            <span key={brand} className="text-xl font-black text-white px-4">{brand}</span>
+                        ))}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                </div>
+            </div>
+
+            {/* Features Section */}
+            <section className="py-24 bg-[#101022] relative">
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-6">
+                            Everything you need to <span className="text-primary">dominate</span> your feed
+                        </h2>
+                        <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                            Stop wasting time refreshing pages. Let our smart monitors do the heavy lifting while you focus on consuming content that matters.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
-                            { icon: 'play_circle', title: 'Auto Monitoring', desc: 'Always-on tracking for your favorite channels and playlists. Our systems check for updates every 60 seconds.' },
-                            { icon: 'notifications_active', title: 'Smart Reminders', desc: 'Customizable alerts delivered straight to Telegram, WhatsApp, or Discord. Filter notifications by keywords or duration.' },
-                            { icon: 'bolt', title: 'AI Summaries', desc: "Don't have time to watch? Get a concise AI-generated summary of new uploads instantly in your chat app." },
-                        ].map((feature) => (
-                            <div key={feature.title} className="group p-8 rounded-2xl bg-white/5 border border-white/10 hover:border-primary/50 transition-all hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 cursor-default">
-                                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-primary/20">
-                                    <Icon name={feature.icon} className="text-primary text-3xl" filled />
+                            { icon: 'bolt', title: 'Real-time Detection', desc: 'Our engines scan YouTube APIs every 60 seconds. You wil know about a new video before the notification bell even rings.' },
+                            { icon: 'notifications_active', title: 'Multi-Channel Alerts', desc: 'Get notified where you are most active. We support Telegram, WhatsApp, Discord, and Slack integrations out of the box.' },
+                            { icon: 'psychology', title: 'AI-Powered Summaries', desc: "Skip the clickbait. Our AI watches the video for you and sends a 3-bullet summary instantly, so you decide if it's worth your time." },
+                            { icon: 'history', title: 'Archive & Search', desc: 'Never lose a video again. We maintain a searchable archive of every notification sent, even if the creator deletes the video later.' },
+                            { icon: 'tune', title: 'Custom Filters', desc: 'Only want videos longer than 10 minutes? Or containing specific keywords? Our granular filters give you full control.' },
+                            { icon: 'security', title: 'Enterprise Security', desc: 'Your data is encrypted at rest and in transit. We use OAuth 2.0 for secure access without storing your password.' },
+                        ].map((feature, i) => (
+                            <div key={feature.title} className="group p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-primary/30 transition-all hover:-translate-y-1">
+                                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-primary/20">
+                                    <Icon name={feature.icon} className="text-primary text-2xl" filled />
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-                                <p className="text-slate-400 leading-relaxed">
+                                <p className="text-slate-400 leading-relaxed text-sm">
                                     {feature.desc}
                                 </p>
                             </div>
                         ))}
                     </div>
-                </div>
-            </section>
-
-            {/* Call to Action */}
-            <section className="py-24 relative overflow-hidden">
-                <div className="absolute inset-0 bg-primary/5 -z-10"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px] -z-10"></div>
-                <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-                    <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight">Ready to streamline your watch list?</h2>
-                    <p className="text-slate-400 text-lg mb-10 max-w-2xl mx-auto">Join thousands of users getting notified instantly. No more manual checking.</p>
-                    <button onClick={() => onNavigate('SIGNUP')} className="px-10 py-5 bg-primary hover:bg-primaryHover text-white rounded-xl font-bold text-xl shadow-xl shadow-primary/30 transition-all hover:scale-105 active:scale-95">
-                        Get Started Now — It's Free
-                    </button>
                 </div>
             </section>
 

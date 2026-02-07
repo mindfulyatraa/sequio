@@ -1,54 +1,68 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>YT Monitor Pro</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
-            colors: {
-              primary: '#3c3cf6',
-              'primary-hover': '#2a2adb',
-              background: '#0a0a0b',
-              surface: '#16161d',
-              border: '#242433',
-              success: '#10B981',
-              warning: '#F59E0B',
-              danger: '#EF4444',
-              textMain: '#F8FAFC',
-              textMuted: '#94A3B8',
-            }
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YT Monitor Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: '#3c3cf6',
+            'primary-hover': '#2a2adb',
+            background: '#0a0a0b',
+            surface: '#16161d',
+            border: '#242433',
+            success: '#10B981',
+            warning: '#F59E0B',
+            danger: '#EF4444',
+            textMain: '#F8FAFC',
+            textMuted: '#94A3B8',
           }
         }
       }
-    </script>
-    <style>
-      body {
-        background-color: #0a0a0b;
-        color: #F8FAFC;
-        font-family: 'Inter', sans-serif;
-      }
-      .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-      }
-      .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      }
-      /* Custom utility for active nav state if needed outside React */
-      .active-nav {
-        background-color: #3c3cf6;
-        color: white;
-      }
-    </style>
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0a0a0b;
+      color: #F8FAFC;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* Custom utility for active nav state if needed outside React */
+    .active-nav {
+      background-color: #3c3cf6;
+      color: white;
+    }
+
+    /* Hide Vercel Toolbar */
+    #vercel-toolbar,
+    vercel-live-feedback {
+      display: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -59,9 +73,11 @@
   }
 }
 </script>
-<script type="module" src="/index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
 </head>
-  <body>
-    <div id="root"></div>
-  </body>
+
+<body>
+  <div id="root"></div>
+</body>
+
 </html>
