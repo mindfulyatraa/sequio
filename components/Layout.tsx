@@ -79,8 +79,8 @@ export const Layout: React.FC<LayoutProps> = ({ currentScreen, onNavigate, child
           </div>
 
           <button
-            onClick={() => {
-              logout();
+            onClick={async () => {
+              await logout();
               onNavigate('LANDING');
             }}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-danger/10 hover:text-danger transition-colors"
