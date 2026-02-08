@@ -1,46 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../components/Icon';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../src/utils/supabase';
+import { getUserPlaylists } from '../src/utils/playlist';
 
-interface Monitor {
+interface Playlist {
   id: string;
   user_id: string;
+  playlist_id: string;
   playlist_url: string;
+  title?: string;
+  thumbnail?: string;
+  channel_name?: string;
+  video_count: number;
+  last_checked_at?: string;
   created_at: string;
 }
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
-  const [monitors, setMonitors] = useState<Monitor[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchMonitors();
+    fetchPlaylists();
   }, [user]);
 
-  const fetchMonitors = async () => {
+  const fetchPlaylists = async () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from('monitors')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-      setMonitors(data || []);
+      const data = await getUserPlaylists(user.id);
+      setPlaylists(data);
     } catch (err) {
-      console.error('Error fetching monitors:', err);
+      console.error('Error fetching playlists:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const hasMonitors = monitors.length > 0;
+  const hasPlaylists = playlists.length > 0;
 
   // Empty state if no monitors
-  if (!loading && !hasMonitors) {
+  if (!loading && !hasPlaylists) {
     return (
       <div className="max-w-2xl mx-auto text-center py-20">
         <div className="bg-surface p-12 rounded-2xl border border-border">
@@ -69,7 +70,7 @@ export const Dashboard: React.FC = () => {
         <div>
           <h2 className="text-3xl font-black tracking-tight text-white">Dashboard Overview</h2>
           <p className="text-slate-400 mt-1">
-            Welcome back! Monitoring {monitors.length} {monitors.length === 1 ? 'playlist' : 'playlists'}.
+            Welcome back! Monitoring {playlists.length} {playlists.length === 1 ? 'playlist' : 'playlists'}.
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -92,7 +93,7 @@ export const Dashboard: React.FC = () => {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {[
-          { icon: 'video_library', color: 'text-primary', label: 'Total Playlists', value: monitors.length.toString(), change: '+2%', changeColor: 'text-success bg-success/10' },
+          { icon: 'video_library', color: 'text-primary', label: 'Total Playlists', value: playlists.length.toString(), change: '+2%', changeColor: 'text-success bg-success/10' },
           { icon: 'pending_actions', color: 'text-primary', label: 'Pending Videos', value: '0', change: '0%', changeColor: 'text-slate-400 bg-slate-400/10' },
           { icon: 'alarm_on', color: 'text-primary', label: 'Active Reminders', value: '0', change: '0%', changeColor: 'text-slate-400 bg-slate-400/10' },
           { icon: 'visibility', color: 'text-primary', label: 'Watched This Week', value: '0', change: '+0%', changeColor: 'text-slate-400 bg-slate-400/10' },
@@ -124,20 +125,20 @@ export const Dashboard: React.FC = () => {
             <div className="p-8 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto"></div>
             </div>
-          ) : monitors.length === 0 ? (
+          ) : playlists.length === 0 ? (
             <div className="p-8 text-center text-slate-400">
               <p>No playlists monitored yet</p>
             </div>
           ) : (
-            monitors.map((monitor) => (
-              <div key={monitor.id} className="p-4 hover:bg-white/5 transition-colors flex items-center gap-4">
+            playlists.map((playlist) => (
+              <div key={playlist.id} className="p-4 hover:bg-white/5 transition-colors flex items-center gap-4">
                 <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
                   <Icon name="playlist_play" className="text-primary text-3xl" filled />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-base font-bold text-white truncate">{monitor.playlist_url}</h4>
+                  <h4 className="text-base font-bold text-white truncate">{playlist.title || playlist.playlist_url}</h4>
                   <p className="text-sm text-slate-400 mt-1">
-                    Added {new Date(monitor.created_at).toLocaleDateString()}
+                    {playlist.video_count} videos • Added {new Date(playlist.created_at).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

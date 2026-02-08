@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../src/utils/supabase';
+import { saveOAuthTokens } from '../src/utils/oauth-tokens';
 
 // Map Supabase User to our App User type if needed, or use Supabase type
 interface AppUser {
@@ -55,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 2. Listen for changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       if (session?.user) {
         setUser({
@@ -64,6 +65,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: session.user.user_metadata?.name || session.user.email?.split('@')[0],
           avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.user_metadata?.name || 'User')}&background=random`
         });
+
+        // Save OAuth tokens if user signed in via OAuth
+        if (event === 'SIGNED_IN' && session.provider_token) {
+          try {
+            await saveOAuthTokens({
+              user_id: session.user.id,
+              provider: 'google',
+              access_token: session.provider_token,
+              refresh_token: session.provider_refresh_token || '',
+              expires_at: new Date(Date.now() + (session.expires_in || 3600) * 1000).toISOString(),
+              scope: session.user.user_metadata?.provider_scopes || ''
+            });
+            console.log('OAuth tokens saved successfully');
+          } catch (err) {
+            console.error('Failed to save OAuth tokens:', err);
+          }
+        }
       } else {
         setUser(null);
       }

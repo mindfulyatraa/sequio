@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { ScreenType } from '../types';
 import { Icon } from '../components/Icon';
-import { supabase } from '../src/utils/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { addPlaylist } from '../src/utils/playlist';
 
 interface OnboardingProps {
     onNavigate: (screen: ScreenType) => void;
@@ -16,18 +16,13 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
 
     const handlePlaylistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!playlistUrl) return;
+        if (!playlistUrl || !user) return;
 
         setLoading(true);
         setError('');
 
         try {
-            const { error } = await supabase.from('monitors').insert({
-                user_id: user?.id,
-                playlist_url: playlistUrl,
-            });
-
-            if (error) throw error;
+            await addPlaylist(user.id, playlistUrl);
             onNavigate('DASHBOARD');
         } catch (err: any) {
             console.error(err);
