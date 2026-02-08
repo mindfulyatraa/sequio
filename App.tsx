@@ -15,11 +15,15 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     if (!isLoading) {
       if (isAuthenticated) {
+        // Only redirect from public screens, allow ONBOARDING
         if (['LANDING', 'LOGIN', 'SIGNUP'].includes(currentScreen)) {
-          setCurrentScreen('DASHBOARD');
+          // Check if user has completed onboarding by checking if they have any playlists
+          // For now, redirect to ONBOARDING by default, later we'll check database
+          setCurrentScreen('ONBOARDING');
         }
       } else {
-        if (!['LANDING', 'LOGIN', 'SIGNUP'].includes(currentScreen)) {
+        // Redirect to LOGIN if not authenticated and not on public screen
+        if (!['LANDING', 'LOGIN', 'SIGNUP', 'ONBOARDING'].includes(currentScreen)) {
           setCurrentScreen('LOGIN');
         }
       }
