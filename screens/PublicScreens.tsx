@@ -401,6 +401,13 @@ export const Signup: React.FC<PublicProps> = ({ onNavigate }) => {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+                    <div>
+                        <label className="block text-sm font-medium text-textMuted mb-1.5">Full Name</label>
+                        <input
+                            type="text"
+                            required
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
                             className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
                             placeholder="Alex Rivers"
                         />
@@ -461,38 +468,11 @@ export const Signup: React.FC<PublicProps> = ({ onNavigate }) => {
                         <span>Google</span>
                     </button>
                 </form>
-                <div>
-                    <label className="block text-sm font-medium text-textMuted mb-1.5">Email Address</label>
-                    <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
-                        placeholder="you@example.com"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-textMuted mb-1.5">Password</label>
-                    <input
-                        type="password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
-                        placeholder="Min. 6 characters"
-                    />
-                </div>
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
-                >
-                    {loading ? 'Creating Account...' : 'Create Account'}
-                </button>
-            </form >
 
-    <p className="text-center text-sm text-textMuted">
-        Already have an account? <button onClick={() => onNavigate('LOGIN')} className="text-primary hover:text-white font-bold transition-colors">Sign in</button>
-    </p>
-        </div >
+                <p className="text-center text-sm text-textMuted">
+                    Already have an account? <button onClick={() => onNavigate('LOGIN')} className="text-primary hover:text-white font-bold transition-colors">Sign in</button>
+                </p>
+            </div>
+        </div>
+    );
+};
