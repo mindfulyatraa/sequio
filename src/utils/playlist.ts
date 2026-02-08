@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { fetchPlaylistInfo } from './youtube-api';
 
 /**
  * Extract playlist ID from YouTube URL
@@ -25,7 +26,7 @@ export function extractPlaylistId(url: string): string | null {
 }
 
 /**
- * Add a playlist to monitor
+ * Add a playlist to monitor with YouTube metadata
  */
 export async function addPlaylist(userId: string, playlistUrl: string) {
     const playlistId = extractPlaylistId(playlistUrl);
@@ -46,13 +47,28 @@ export async function addPlaylist(userId: string, playlistUrl: string) {
         throw new Error('Playlist already being monitored');
     }
 
-    // Insert new playlist
+    // Fetch playlist info from YouTube API
+    const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
+    let playlistInfo;
+
+    try {
+        playlistInfo = await fetchPlaylistInfo(playlistId, apiKey);
+    } catch (err: any) {
+        console.error('Failed to fetch playlist info:', err);
+        throw new Error('Could not fetch playlist information. Please check the URL.');
+    }
+
+    // Insert new playlist with metadata
     const { data, error } = await supabase
         .from('playlists')
         .insert({
             user_id: userId,
             playlist_id: playlistId,
             playlist_url: playlistUrl,
+            title: playlistInfo.title,
+            thumbnail: playlistInfo.thumbnail,
+            channel_name: playlistInfo.channelTitle,
+            video_count: playlistInfo.itemCount,
             created_at: new Date().toISOString()
         })
         .select()
