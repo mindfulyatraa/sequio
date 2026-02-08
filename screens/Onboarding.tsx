@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScreenType } from '../types';
 import { Icon } from '../components/Icon';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../src/utils/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
 interface OnboardingProps {
