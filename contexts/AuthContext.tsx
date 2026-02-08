@@ -66,21 +66,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(session.user.user_metadata?.name || 'User')}&background=random`
         });
 
-        // Save OAuth tokens if user signed in via OAuth
+        // Save OAuth tokens if user signed in via OAuth (non-blocking)
         if (event === 'SIGNED_IN' && session.provider_token) {
-          try {
-            await saveOAuthTokens({
-              user_id: session.user.id,
-              provider: 'google',
-              access_token: session.provider_token,
-              refresh_token: session.provider_refresh_token || '',
-              expires_at: new Date(Date.now() + (session.expires_in || 3600) * 1000).toISOString(),
-              scope: session.user.user_metadata?.provider_scopes || ''
-            });
+          // Don't await - run in background
+          saveOAuthTokens({
+            user_id: session.user.id,
+            provider: 'google',
+            access_token: session.provider_token,
+            refresh_token: session.provider_refresh_token || '',
+            expires_at: new Date(Date.now() + (session.expires_in || 3600) * 1000).toISOString(),
+            scope: session.user.user_metadata?.provider_scopes || ''
+          }).then(() => {
             console.log('OAuth tokens saved successfully');
-          } catch (err) {
+          }).catch(err => {
             console.error('Failed to save OAuth tokens:', err);
-          }
+          });
         }
       } else {
         setUser(null);
