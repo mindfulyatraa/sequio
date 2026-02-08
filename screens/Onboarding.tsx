@@ -16,15 +16,44 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
 
     // Check if user just returned from OAuth flow
     useEffect(() => {
-        // Check URL hash for OAuth callback
+        console.log('🔍 Onboarding: Checking for OAuth callback...');
+        console.log('Current URL:', window.location.href);
+        console.log('URL Hash:', window.location.hash);
+        console.log('URL Search:', window.location.search);
+
+        // Check URL hash OR search params for OAuth callback
         const hash = window.location.hash;
-        if (hash && hash.includes('access_token')) {
-            // User returned from OAuth, give it a moment to process
+        const search = window.location.search;
+
+        // Supabase puts tokens in hash fragment
+        if (hash && (hash.includes('access_token') || hash.includes('type=recovery'))) {
+            console.log('✅ OAuth callback detected in hash! Waiting for auth state...');
+
+            // Wait longer for Supabase to process the session
+            const checkInterval = setInterval(() => {
+                if (user) {
+                    console.log('✅ User session detected! Redirecting to dashboard...');
+                    clearInterval(checkInterval);
+                    setTimeout(() => {
+                        console.log('🚀 Navigating to DASHBOARD');
+                        onNavigate('DASHBOARD');
+                    }, 500);
+                }
+            }, 500);
+
+            // Timeout after 10 seconds
             setTimeout(() => {
-                onNavigate('DASHBOARD');
-            }, 1500);
+                clearInterval(checkInterval);
+                if (!user) {
+                    console.log('⚠️ Timeout waiting for user session');
+                }
+            }, 10000);
+        } else if (search && search.includes('code=')) {
+            console.log('✅ OAuth code detected in search params! Will redirect after session...');
+        } else {
+            console.log('❌ No OAuth callback detected in URL');
         }
-    }, [onNavigate]);
+    }, [onNavigate, user]);
 
     const handlePlaylistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

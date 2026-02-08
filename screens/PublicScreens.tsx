@@ -207,7 +207,7 @@ export const Landing: React.FC<PublicProps> = ({ onNavigate }) => {
                         </div>
                     </div>
                     <div className="text-center text-sm text-slate-600">
-                        © 2024 YouTube Monitor. All rights reserved.
+                        © 2026 Sequio. All rights reserved.
                     </div>
                 </div>
             </footer>

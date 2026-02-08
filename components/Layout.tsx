@@ -21,8 +21,8 @@ export const Layout: React.FC<LayoutProps> = ({ currentScreen, onNavigate, child
     <button
       onClick={() => onNavigate(id)}
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative group ${currentScreen === id
-          ? 'bg-primary text-white shadow-lg shadow-primary/20'
-          : 'text-slate-400 hover:bg-white/5 hover:text-white'
+        ? 'bg-primary text-white shadow-lg shadow-primary/20'
+        : 'text-slate-400 hover:bg-white/5 hover:text-white'
         }`}
     >
       <Icon name={icon} className="text-[22px]" filled={currentScreen === id} />
@@ -39,13 +39,14 @@ export const Layout: React.FC<LayoutProps> = ({ currentScreen, onNavigate, child
       <aside className="fixed inset-y-0 left-0 w-64 bg-surface border-r border-border flex flex-col z-50">
         <div className="p-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-              <Icon name="smart_display" className="text-2xl" />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-base font-bold leading-none text-white">YT Monitor</h1>
-              <p className="text-xs text-slate-500 mt-1">Smart Sync v2.4</p>
-            </div>
+            {/* Logo - Clickable to navigate home */}
+            <button
+              onClick={() => onNavigate(currentScreen === 'DASHBOARD' || currentScreen === 'SETTINGS' ? 'DASHBOARD' : 'LANDING')}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            >
+              <img src="/logo.png" alt="Sequio" className="h-10 w-auto" />
+              <h1 className="text-xl font-bold leading-none text-white hidden sm:block">Sequio</h1>
+            </button>
           </div>
         </div>
 
