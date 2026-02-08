@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScreenType } from '../types';
 import { Icon } from '../components/Icon';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,6 +13,18 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
     const [playlistUrl, setPlaylistUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    // Check if user just returned from OAuth flow
+    useEffect(() => {
+        // Check URL hash for OAuth callback
+        const hash = window.location.hash;
+        if (hash && hash.includes('access_token')) {
+            // User returned from OAuth, give it a moment to process
+            setTimeout(() => {
+                onNavigate('DASHBOARD');
+            }, 1500);
+        }
+    }, [onNavigate]);
 
     const handlePlaylistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
