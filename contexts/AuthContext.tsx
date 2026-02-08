@@ -136,6 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       login,
       signup,
       loginWithGoogle,
+      connectYouTube,
       logout,
       isAuthenticated: !!user
     }}>

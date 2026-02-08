@@ -37,10 +37,18 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
         }
     };
 
-    const handleConnectYouTube = () => {
-        // For now, redirect to dashboard
-        // YouTube API integration will be added later
-        onNavigate('DASHBOARD');
+    const handleConnectYouTube = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            // This will trigger OAuth flow to select YouTube channel
+            await connectYouTube();
+            // User will be redirected to Google OAuth
+        } catch (err: any) {
+            console.error(err);
+            setError('Failed to connect YouTube: ' + err.message);
+            setLoading(false);
+        }
     };
 
     return (
