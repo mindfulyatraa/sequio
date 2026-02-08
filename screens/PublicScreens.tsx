@@ -217,146 +217,107 @@ export const Landing: React.FC<PublicProps> = ({ onNavigate }) => {
 
 export const Login: React.FC<PublicProps> = ({ onNavigate }) => {
     const { login, loginWithGoogle } = useAuth();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleLogin = async () => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
         setLoading(true);
         try {
-            await login("alex@flow.io", "password"); // Mock login for demo
-            onNavigate('DASHBOARD');
-        } catch (err) {
-            console.error(err);
+            await login(email, password);
+        } catch (err: any) {
+            setError(err.message || 'Failed to sign in');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-[#101022] flex flex-col font-sans antialiased text-slate-100">
-            {/* Header / Navbar */}
-            <header className="w-full px-6 py-4 flex items-center justify-between border-b border-gray-200 dark:border-white/10 bg-white/50 dark:bg-black/20 backdrop-blur-md">
-                <div className="flex items-center gap-2 cursor-pointer" onClick={() => onNavigate('LANDING')}>
-                    <div className="bg-primary p-1.5 rounded-lg flex items-center justify-center">
-                        <Icon name="smart_display" className="text-white text-xl" />
+        <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+                <div className="absolute bottom-[10%] left-[10%] w-96 h-96 bg-success/10 rounded-full blur-[100px]"></div>
+                <div className="absolute top-[10%] right-[10%] w-96 h-96 bg-primary/10 rounded-full blur-[100px]"></div>
+            </div>
+
+            <div className="w-full max-w-md bg-surface border border-border p-8 rounded-2xl shadow-2xl relative z-10">
+                <div className="text-center mb-8">
+                    <h1 className="text-2xl font-bold text-white mb-2">Welcome Back</h1>
+                    <p className="text-textMuted text-sm">Sign in to your account</p>
+                </div>
+
+                {error && (
+                    <div className="mb-6 p-3 bg-danger/10 border border-danger/20 text-danger text-sm font-bold rounded-lg text-center">
+                        {error}
                     </div>
-                    <span className="text-gray-900 dark:text-white font-bold text-lg tracking-tight">YouTube Monitor</span>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button className="text-sm text-gray-600 dark:text-gray-400 font-medium hover:text-primary transition-colors">Documentation</button>
-                    <button className="text-sm bg-gray-200 dark:bg-white/10 text-gray-900 dark:text-white px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-white/20 transition-all">Support</button>
-                </div>
-            </header>
+                )}
 
-            {/* Main Content Area */}
-            <main className="flex-grow flex items-center justify-center p-6 relative overflow-hidden">
-                {/* Background decorative mesh similar to image */}
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(at 0% 0%, rgba(60, 60, 246, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(60, 60, 246, 0.1) 0px, transparent 50%)' }}></div>
-                </div>
+                <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+                    <div>
+                        <label className="block text-sm font-medium text-textMuted mb-1.5">Email Address</label>
+                        <input
+                            type="email"
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+                            placeholder="you@example.com"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-textMuted mb-1.5">Password</label>
+                        <input
+                            type="password"
+                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors"
+                            placeholder="••••••••"
+                        />
+                    </div>
 
-                <div className="w-full max-w-[400px] animate-in fade-in zoom-in duration-500 relative z-10">
-                    {/* Auth Card */}
-                    <div className="bg-white dark:bg-[#1a1a2e] rounded-xl shadow-2xl shadow-black/50 border border-gray-200 dark:border-white/5 overflow-hidden">
+                    <div className="mt-6">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-primary hover:bg-primaryHover text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? 'Signing in...' : 'Sign In'}
+                        </button>
+                    </div>
 
-                        {/* Card Header */}
-                        <div className="p-8 pb-4 text-center">
-                            <div className="inline-flex items-center justify-center w-20 h-20 bg-red-500/10 rounded-full mb-6">
-                                <svg className="w-12 h-12 text-red-600" fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M164.44,121.34l-48-32A8,8,0,0,0,104,96v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,145.05V111l25.58,17ZM234.33,69.52a24,24,0,0,0-14.49-16.4C185.56,39.88,131,40,128,40s-57.56-.12-91.84,13.12a24,24,0,0,0-14.49,16.4C19.08,79.5,16,97.74,16,128s3.08,48.5,5.67,58.48a24,24,0,0,0,14.49,16.41C69,215.56,120.4,216,127.34,216h1.32c6.94,0,58.37-.44,91.18-13.11a24,24,0,0,0,14.49-16.41c2.59-10,5.67-28.22,5.67-58.48S236.92,79.5,234.33,69.52Zm-15.49,113a8,8,0,0,1-4.77,5.49c-31.65,12.22-85.48,12-86,12H128c-.54,0-54.33.2-86-12a8,8,0,0,1-4.77-5.49C34.8,173.39,32,156.57,32,128s2.8-45.39,5.16-54.47A8,8,0,0,1,41.93,68c30.52-11.79,81.66-12,85.85-12h.27c.54,0,54.38-.18,86,12a8,8,0,0,1,4.77,5.49C221.2,82.61,224,99.43,224,128S221.2,173.39,218.84,182.47Z"></path>
-                                </svg>
-                            </div>
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">Welcome Back</h1>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed px-4">
-                                Sign in with your YouTube account to continue monitoring your favorite playlists
-                            </p>
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-white/10"></div>
                         </div>
-
-                        {/* Features Preview */}
-                        <div className="px-8 py-4 flex justify-center gap-6">
-                            <div className="flex flex-col items-center gap-1 opacity-60">
-                                <Icon name="notifications_active" className="text-primary text-xl" filled />
-                                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wide">Alerts</span>
-                            </div>
-                            <div className="flex flex-col items-center gap-1 opacity-60">
-                                <Icon name="send" className="text-primary text-xl" filled />
-                                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wide">Telegram</span>
-                            </div>
-                            <div className="flex flex-col items-center gap-1 opacity-60">
-                                <Icon name="smart_toy" className="text-primary text-xl" filled />
-                                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wide">AI Logic</span>
-                            </div>
-                        </div>
-
-                        {/* Card Action */}
-                        <div className="p-8 pt-6">
-                            <button
-                                onClick={handleLogin}
-                                disabled={loading}
-                                className="w-full flex items-center justify-center gap-3 bg-primary hover:bg-primaryHover text-white font-bold py-4 px-6 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-primary/25 group"
-                            >
-                                {loading ? (
-                                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                ) : (
-                                    <>
-                                        <svg className="w-6 h-6 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M234.33,69.52a24,24,0,0,0-14.49-16.4C185.56,39.88,131,40,128,40s-57.56-.12-91.84,13.12a24,24,0,0,0-14.49,16.4C19.08,79.5,16,97.74,16,128s3.08,48.5,5.67,58.48a24,24,0,0,0,14.49,16.41C69,215.56,120.4,216,127.34,216h1.32c6.94,0,58.37-.44,91.18-13.11a24,24,0,0,0,14.49-16.41c2.59-10,5.67-28.22,5.67-58.48S236.92,79.5,234.33,69.52Z"></path>
-                                        </svg>
-                                        <span>Sign in with YouTube</span>
-                                    </>
-                                )}
-                            </button>
-
-                            <div className="relative my-6">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-200 dark:border-white/10"></div>
-                                </div>
-                                <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-white dark:bg-[#1a1a2e] text-gray-500">Or continue with</span>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={() => loginWithGoogle()}
-                                type="button"
-                                className="w-full flex items-center justify-center gap-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-900 dark:text-white font-semibold py-3 px-6 rounded-xl transition-all active:scale-[0.98]"
-                            >
-                                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                                </svg>
-                                <span>Google</span>
-                            </button>
-                            <div className="mt-8 flex items-center justify-center gap-2 text-[11px] text-gray-500 dark:text-gray-500 uppercase font-bold tracking-widest text-center opacity-70">
-                                <Icon name="lock" className="text-sm" filled />
-                                Secure OAuth2 Encryption
-                            </div>
-                        </div>
-
-                        {/* Subtle Bottom Bar */}
-                        <div className="bg-gray-50 dark:bg-black/20 px-8 py-4 border-t border-gray-100 dark:border-white/5">
-                            <p className="text-[11px] text-gray-400 dark:text-gray-500 text-center leading-relaxed">
-                                By signing in, you grant read-only access to your public and unlisted playlists. We never post on your behalf.
-                            </p>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-surface text-textMuted">Or continue with</span>
                         </div>
                     </div>
 
-                    {/* Footer Links */}
-                    <footer className="mt-8 flex justify-center gap-4 text-xs text-gray-500 dark:text-gray-600 font-medium">
-                        <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-                        <span>•</span>
-                        <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-                        <span>•</span>
-                        <a href="#" className="hover:text-primary transition-colors">Contact</a>
-                    </footer>
-                </div>
-            </main>
+                    <button
+                        type="button"
+                        onClick={() => loginWithGoogle()}
+                        className="w-full flex items-center justify-center gap-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold py-3 px-6 rounded-xl transition-all active:scale-[0.98]"
+                    >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                        </svg>
+                        <span>Google</span>
+                    </button>
+                </form>
 
-            {/* Bottom Decorative Gradient */}
-            <div className="fixed bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-30"></div>
+                <p className="text-center text-sm text-textMuted">
+                    Don't have an account? <button onClick={() => onNavigate('SIGNUP')} className="text-primary hover:text-white font-bold transition-colors">Sign up</button>
+                </p>
+            </div>
         </div>
-    )
+    );
 }
 
 export const Signup: React.FC<PublicProps> = ({ onNavigate }) => {
