@@ -14,9 +14,12 @@ const AppContent: React.FC = () => {
   // Guard protected routes
   useEffect(() => {
     if (!isLoading) {
+      // Check if this is an OAuth callback
+      const isOAuthCallback = window.location.hash.includes('access_token') || window.location.search.includes('code=');
+
       if (isAuthenticated) {
-        // Only redirect from public screens, allow ONBOARDING
-        if (['LANDING', 'LOGIN', 'SIGNUP'].includes(currentScreen)) {
+        // If OAuth callback, allow natural navigation (don't force ONBOARDING)
+        if (!isOAuthCallback && ['LANDING', 'LOGIN', 'SIGNUP'].includes(currentScreen)) {
           // Check if user has completed onboarding by checking if they have any playlists
           // For now, redirect to ONBOARDING by default, later we'll check database
           setCurrentScreen('ONBOARDING');
