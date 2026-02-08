@@ -24,36 +24,23 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
         try {
             const { error } = await supabase.from('monitors').insert({
                 user_id: user?.id,
-                type: 'playlist',
-                source_url: playlistUrl,
-                status: 'active',
-                name: 'My Playlist' // Default name, can be fetched later
+                playlist_url: playlistUrl,
             });
 
             if (error) throw error;
             onNavigate('DASHBOARD');
         } catch (err: any) {
             console.error(err);
-            // If table doesn't exist, we might get an error. 
-            // For now, let's assume we handle it or notify user to run migration.
-            if (err.message?.includes('relation "monitors" does not exist')) {
-                setError('Database not ready. Please contact admin.');
-            } else {
-                setError(err.message || 'Failed to add playlist');
-            }
+            setError(err.message || 'Failed to add playlist');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleConnectYouTube = async () => {
-        try {
-            await connectYouTube();
-            // User will be redirected to Google for auth
-        } catch (err: any) {
-            console.error(err);
-            setError('Failed to connect YouTube');
-        }
+    const handleConnectYouTube = () => {
+        // For now, redirect to dashboard
+        // YouTube API integration will be added later
+        onNavigate('DASHBOARD');
     };
 
     return (
