@@ -3,6 +3,7 @@ import { ScreenType } from '../types';
 import { Icon } from '../components/Icon';
 import { useAuth } from '../contexts/AuthContext';
 import { addPlaylist } from '../src/utils/playlist';
+import { supabase } from '../src/utils/supabase';
 
 interface OnboardingProps {
     onNavigate: (screen: ScreenType) => void;
@@ -14,46 +15,38 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Check if user just returned from OAuth flow
+    // Check if user has connected YouTube (has tokens in database)
     useEffect(() => {
-        console.log('🔍 Onboarding: Checking for OAuth callback...');
-        console.log('Current URL:', window.location.href);
-        console.log('URL Hash:', window.location.hash);
-        console.log('URL Search:', window.location.search);
+        const checkYouTubeConnection = async () => {
+            if (!user) return;
 
-        // Check URL hash OR search params for OAuth callback
-        const hash = window.location.hash;
-        const search = window.location.search;
+            console.log('🔍 Onboarding: Checking for YouTube connection...');
 
-        // Supabase puts tokens in hash fragment
-        if (hash && (hash.includes('access_token') || hash.includes('type=recovery'))) {
-            console.log('✅ OAuth callback detected in hash! Waiting for auth state...');
+            try {
+                // Check if user has YouTube OAuth tokens
+                const { data, error } = await supabase
+                    .from('user_tokens')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('provider', 'google')
+                    .single();
 
-            // Wait longer for Supabase to process the session
-            const checkInterval = setInterval(() => {
-                if (user) {
-                    console.log('✅ User session detected! Redirecting to dashboard...');
-                    clearInterval(checkInterval);
+                if (data && !error) {
+                    console.log('✅ YouTube tokens found! Redirecting to dashboard...');
+                    // Small delay to ensure smooth transition
                     setTimeout(() => {
-                        console.log('🚀 Navigating to DASHBOARD');
                         onNavigate('DASHBOARD');
                     }, 500);
+                } else {
+                    console.log('❌ No YouTube tokens found');
                 }
-            }, 500);
+            } catch (err) {
+                console.error('Error checking YouTube connection:', err);
+            }
+        };
 
-            // Timeout after 10 seconds
-            setTimeout(() => {
-                clearInterval(checkInterval);
-                if (!user) {
-                    console.log('⚠️ Timeout waiting for user session');
-                }
-            }, 10000);
-        } else if (search && search.includes('code=')) {
-            console.log('✅ OAuth code detected in search params! Will redirect after session...');
-        } else {
-            console.log('❌ No OAuth callback detected in URL');
-        }
-    }, [onNavigate, user]);
+        checkYouTubeConnection();
+    }, [user, onNavigate]);
 
     const handlePlaylistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
