@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../src/utils/supabase';
 
 // Map Supabase User to our App User type if needed, or use Supabase type
 interface AppUser {
