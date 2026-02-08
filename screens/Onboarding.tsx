@@ -15,37 +15,35 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Check if user has connected YouTube (has tokens in database)
+    // Check if user has already added playlists (completed onboarding)
     useEffect(() => {
-        const checkYouTubeConnection = async () => {
+        const checkOnboardingStatus = async () => {
             if (!user) return;
 
-            console.log('🔍 Onboarding: Checking for YouTube connection...');
+            console.log('🔍 Onboarding: Checking if user has playlists...');
 
             try {
-                // Check if user has YouTube OAuth tokens
+                // Check if user has any playlists - if yes, skip to dashboard
                 const { data, error } = await supabase
-                    .from('user_tokens')
+                    .from('playlists')
                     .select('id')
                     .eq('user_id', user.id)
-                    .eq('provider', 'google')
-                    .single();
+                    .limit(1);
 
-                if (data && !error) {
-                    console.log('✅ YouTube tokens found! Redirecting to dashboard...');
-                    // Small delay to ensure smooth transition
+                if (data && data.length > 0 && !error) {
+                    console.log('✅ User has playlists! Redirecting to dashboard...');
                     setTimeout(() => {
                         onNavigate('DASHBOARD');
-                    }, 500);
+                    }, 300);
                 } else {
-                    console.log('❌ No YouTube tokens found');
+                    console.log('❌ No playlists found, staying on onboarding');
                 }
             } catch (err) {
-                console.error('Error checking YouTube connection:', err);
+                console.error('Error checking onboarding status:', err);
             }
         };
 
-        checkYouTubeConnection();
+        checkOnboardingStatus();
     }, [user, onNavigate]);
 
     const handlePlaylistSubmit = async (e: React.FormEvent) => {
