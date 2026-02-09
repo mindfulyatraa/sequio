@@ -44,7 +44,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentScreen, onNavigate, child
               onClick={() => onNavigate(currentScreen === 'DASHBOARD' || currentScreen === 'SETTINGS' ? 'DASHBOARD' : 'LANDING')}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity"
             >
-              <img src="/logo.png" alt="Sequio" className="h-10 w-auto" />
+              <img src="/logo-with-bg.png" alt="Sequio" className="h-10 w-auto" />
               <h1 className="text-xl font-bold leading-none text-white hidden sm:block">Sequio</h1>
             </button>
           </div>
