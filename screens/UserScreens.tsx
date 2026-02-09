@@ -235,7 +235,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onSelectPlayli
   );
 };
 
-import { getPlaylistVideos } from '../src/utils/playlist';
+import { getPlaylistVideos, syncPlaylistVideos } from '../src/utils/playlist';
 import { supabase } from '../src/utils/supabase';
 
 interface PlaylistDetailProps {
@@ -247,6 +247,7 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     if (playlistId) {
@@ -270,10 +271,30 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
       // Fetch videos
       const videosData = await getPlaylistVideos(playlistId!);
       setVideos(videosData);
+
+      // If no videos, try auto-sync once
+      if (videosData.length === 0) {
+        handleSync();
+      }
     } catch (err) {
       console.error('Error fetching playlist details:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSync = async () => {
+    if (!playlistId || syncing) return;
+    try {
+      setSyncing(true);
+      await syncPlaylistVideos(playlistId);
+      // Refresh videos
+      const videosData = await getPlaylistVideos(playlistId!);
+      setVideos(videosData);
+    } catch (err) {
+      console.error('Sync failed:', err);
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -359,9 +380,13 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
                 <Icon name="open_in_new" />
                 Open in YouTube
               </a>
-              <button className="bg-surface hover:bg-white/5 border border-border text-white font-bold py-2.5 px-6 rounded-xl transition-all flex items-center gap-2">
-                <Icon name="refresh" />
-                Sync Now
+              <button
+                onClick={handleSync}
+                disabled={syncing}
+                className="bg-surface hover:bg-white/5 border border-border text-white font-bold py-2.5 px-6 rounded-xl transition-all flex items-center gap-2 disabled:opacity-50"
+              >
+                <Icon name={syncing ? "autorenew" : "refresh"} className={syncing ? "animate-spin" : ""} />
+                {syncing ? 'Syncing...' : 'Sync Now'}
               </button>
             </div>
           </div>

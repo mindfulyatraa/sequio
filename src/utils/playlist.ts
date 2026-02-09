@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { fetchPlaylistInfo } from './youtube-api';
+import { fetchPlaylistInfo, fetchPlaylistVideos } from './youtube-api';
 
 /**
  * Extract playlist ID from YouTube URL
@@ -59,7 +59,7 @@ export async function addPlaylist(userId: string, playlistUrl: string) {
     }
 
     // Insert new playlist with metadata
-    const { data, error } = await supabase
+    const { data: newPlaylist, error } = await supabase
         .from('playlists')
         .insert({
             user_id: userId,
@@ -75,7 +75,59 @@ export async function addPlaylist(userId: string, playlistUrl: string) {
         .single();
 
     if (error) throw error;
-    return data;
+
+    // Trigger initial video sync
+    try {
+        await syncPlaylistVideos(newPlaylist.id);
+    } catch (syncErr) {
+        console.error('Initial video sync failed:', syncErr);
+        // Don't fail the whole operation, just log error
+    }
+
+    return newPlaylist;
+}
+
+/**
+ * Sync videos for a playlist from YouTube API
+ */
+export async function syncPlaylistVideos(id: string) {
+    // 1. Get playlist details
+    const { data: playlist } = await supabase
+        .from('playlists')
+        .select('playlist_id')
+        .eq('id', id)
+        .single();
+
+    if (!playlist) throw new Error('Playlist not found');
+
+    const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
+
+    // 2. Fetch videos from YouTube
+    // Fetch only the first 50 videos for initial sync to be fast
+    // We can implement full sync later or use pagination properly
+    const videos = await fetchPlaylistVideos(playlist.playlist_id, apiKey, undefined, 50);
+
+    if (videos.length === 0) return;
+
+    // 3. Transform for DB
+    const dbVideos = videos.map(v => ({
+        playlist_id: id,
+        video_id: v.videoId,
+        title: v.title,
+        description: v.description,
+        thumbnail_url: v.thumbnail,
+        published_at: v.publishedAt,
+        is_new: true
+    }));
+
+    // 4. Upsert into videos table
+    // We use upsert with ignoreDuplicates to avoid overwriting existing 'is_new' status
+    // Note: This relies on a unique constraint on (playlist_id, video_id)
+    const { error } = await supabase
+        .from('videos')
+        .upsert(dbVideos, { onConflict: 'playlist_id,video_id', ignoreDuplicates: true });
+
+    if (error) throw error;
 }
 
 /**
@@ -96,6 +148,9 @@ export async function getUserPlaylists(userId: string) {
  * Delete a playlist
  */
 export async function deletePlaylist(playlistId: string) {
+    // Delete videos first (though cascade delete should handle this if set up)
+    await supabase.from('videos').delete().eq('playlist_id', playlistId);
+
     const { error } = await supabase
         .from('playlists')
         .delete()
