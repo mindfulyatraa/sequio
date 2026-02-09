@@ -351,7 +351,16 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
 
     return (
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl font-black text-white mb-8">Your Playlists</h2>
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-3xl font-black text-white">Your Playlists</h2>
+          <button
+            onClick={() => onNavigate('ONBOARDING')}
+            className="bg-primary hover:bg-primaryHover text-white font-bold py-2.5 px-6 rounded-xl transition-all flex items-center gap-2"
+          >
+            <Icon name="add" />
+            Add Playlist
+          </button>
+        </div>
         <div className="grid gap-4">
           {allPlaylists.map((p) => (
             <div
