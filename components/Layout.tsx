@@ -34,9 +34,9 @@ export const Layout: React.FC<LayoutProps> = ({ currentScreen, onNavigate, child
   );
 
   return (
-    <div className="flex min-h-screen bg-background text-textMain">
-      {/* Sidebar Navigation */}
-      <aside className="fixed inset-y-0 left-0 w-64 bg-surface border-r border-border flex flex-col z-50">
+    <div className="flex min-h-screen bg-background text-textMain overflow-x-hidden">
+      {/* Sidebar Navigation - Hidden on mobile, visible on md+ */}
+      <aside className="hidden md:flex fixed inset-y-0 left-0 w-64 bg-surface border-r border-border flex-col z-50">
         <div className="p-6">
           <div className="flex items-center gap-3">
             {/* Logo - Clickable to navigate home */}
@@ -91,8 +91,8 @@ export const Layout: React.FC<LayoutProps> = ({ currentScreen, onNavigate, child
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 ml-64 p-8">
+      {/* Main Content - Responsive padding and margin */}
+      <main className="flex-1 w-full md:ml-64 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 overflow-x-hidden">
         {children}
       </main>
     </div>
