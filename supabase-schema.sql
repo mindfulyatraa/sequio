@@ -118,6 +118,33 @@ CREATE POLICY "Users can view videos from own playlists" ON videos
     )
   );
 
+CREATE POLICY "Users can insert videos to own playlists" ON videos
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM playlists
+      WHERE playlists.id = videos.playlist_id
+      AND playlists.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can update videos in own playlists" ON videos
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM playlists
+      WHERE playlists.id = videos.playlist_id
+      AND playlists.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can delete videos from own playlists" ON videos
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM playlists
+      WHERE playlists.id = videos.playlist_id
+      AND playlists.user_id = auth.uid()
+    )
+  );
+
 CREATE POLICY "Service role can manage videos" ON videos
   FOR ALL USING (auth.jwt()->>'role' = 'service_role');
 
