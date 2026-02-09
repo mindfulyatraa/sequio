@@ -248,6 +248,7 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   // State for list view
   const [allPlaylists, setAllPlaylists] = useState<Playlist[]>([]);
@@ -306,12 +307,17 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
     if (!playlistId || syncing) return;
     try {
       setSyncing(true);
+      setSyncError(null);
       await syncPlaylistVideos(playlistId);
       // Refresh videos
       const videosData = await getPlaylistVideos(playlistId!);
       setVideos(videosData);
-    } catch (err) {
+      if (videosData.length === 0) {
+        setSyncError('Sync completed but no videos found. Check playlist visibility.');
+      }
+    } catch (err: any) {
       console.error('Sync failed:', err);
+      setSyncError(err.message || 'Failed to sync videos');
     } finally {
       setSyncing(false);
     }
@@ -461,6 +467,15 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
       <div className="grid gap-4">
         {videos.length === 0 ? (
           <div className="bg-surface p-12 text-center rounded-2xl border border-border">
+            {syncError && (
+              <div className="bg-red-500/10 text-red-400 p-4 rounded-xl mb-6 border border-red-500/20">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Icon name="error" />
+                  <span className="font-bold">Sync Error</span>
+                </div>
+                <p className="text-sm">{syncError}</p>
+              </div>
+            )}
             <p className="text-slate-400">No videos synced yet. Click "Sync Now" to fetch videos.</p>
           </div>
         ) : (

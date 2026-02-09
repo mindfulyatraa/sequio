@@ -104,10 +104,20 @@ export async function syncPlaylistVideos(id: string) {
 
     // 2. Fetch videos from YouTube
     // Fetch only the first 50 videos for initial sync to be fast
-    // We can implement full sync later or use pagination properly
-    const videos = await fetchPlaylistVideos(playlist.playlist_id, apiKey, undefined, 50);
+    console.log('Fetching videos from YouTube for playlist:', playlist.playlist_id);
+    let videos = [];
+    try {
+        videos = await fetchPlaylistVideos(playlist.playlist_id, apiKey, undefined, 50);
+    } catch (fetchErr: any) {
+        console.error('YouTube API fetch failed:', fetchErr);
+        throw new Error(`YouTube API Error: ${fetchErr.message}`);
+    }
 
-    if (videos.length === 0) return;
+    console.log(`Fetched ${videos.length} videos from YouTube`);
+
+    if (videos.length === 0) {
+        throw new Error('No videos found in YouTube playlist. Check if playlist is private or empty.');
+    }
 
     // 3. Transform for DB
     const dbVideos = videos.map(v => ({
@@ -163,13 +173,18 @@ export async function deletePlaylist(playlistId: string) {
  * Get videos for a playlist
  */
 export async function getPlaylistVideos(playlistId: string) {
+    console.log('Fetching videos for playlist:', playlistId);
     const { data, error } = await supabase
         .from('videos')
         .select('*')
         .eq('playlist_id', playlistId)
         .order('published_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+        console.error('Error fetching videos from DB:', error);
+        throw error;
+    }
+    console.log('Videos found:', data?.length);
     return data || [];
 }
 
