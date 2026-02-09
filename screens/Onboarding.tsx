@@ -7,9 +7,10 @@ import { supabase } from '../src/utils/supabase';
 
 interface OnboardingProps {
     onNavigate: (screen: ScreenType) => void;
+    skipRedirect?: boolean; // When true, don't auto-redirect to dashboard
 }
 
-export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
+export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate, skipRedirect = false }) => {
     const { user, connectYouTube } = useAuth();
     const [playlistUrl, setPlaylistUrl] = useState('');
     const [loading, setLoading] = useState(false);
@@ -18,6 +19,11 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
     // Check if user has already added playlists (completed onboarding)
     useEffect(() => {
         const checkOnboardingStatus = async () => {
+            // Skip redirect if we're in "add playlist" mode
+            if (skipRedirect) {
+                console.log('📝 Add Playlist mode - skipping redirect check');
+                return;
+            }
             if (!user) return;
 
             console.log('🔍 Onboarding: Checking if user has playlists...');
@@ -44,7 +50,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onNavigate }) => {
         };
 
         checkOnboardingStatus();
-    }, [user, onNavigate]);
+    }, [user, onNavigate, skipRedirect]);
 
     const handlePlaylistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

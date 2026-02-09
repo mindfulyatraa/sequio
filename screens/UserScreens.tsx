@@ -85,7 +85,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onSelectPlayli
             Start monitoring your favorite YouTube playlists to get instant notifications when new videos are uploaded.
           </p>
           <button
-            onClick={() => onNavigate('ONBOARDING')}
+            onClick={() => onNavigate('ADD_PLAYLIST')}
             className="bg-primary hover:bg-primaryHover text-white font-bold py-3 px-8 rounded-xl transition-all"
           >
             Add Your First Playlist
@@ -151,7 +151,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onSelectPlayli
             <p className="text-sm text-slate-400 mt-1">Active playlist monitoring</p>
           </div>
           <button
-            onClick={() => onNavigate('ONBOARDING')}
+            onClick={() => onNavigate('ADD_PLAYLIST')}
             className="text-primary hover:text-primary-hover font-bold text-sm bg-primary/10 hover:bg-primary/20 px-4 py-2 rounded-lg transition-colors"
           >
             Add New
@@ -340,7 +340,7 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
           <h2 className="text-2xl font-bold mb-2">No Playlists Found</h2>
           <p className="text-slate-400">Add a playlist from the dashboard to get started.</p>
           <button
-            onClick={() => onNavigate('ONBOARDING')}
+            onClick={() => onNavigate('ADD_PLAYLIST')}
             className="mt-6 bg-primary hover:bg-primaryHover text-white font-bold py-2 px-6 rounded-xl transition-all"
           >
             Add Playlist
@@ -354,7 +354,7 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-black text-white">Your Playlists</h2>
           <button
-            onClick={() => onNavigate('ONBOARDING')}
+            onClick={() => onNavigate('ADD_PLAYLIST')}
             className="bg-primary hover:bg-primaryHover text-white font-bold py-2.5 px-6 rounded-xl transition-all flex items-center gap-2"
           >
             <Icon name="add" />

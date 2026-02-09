@@ -52,6 +52,8 @@ const AppContent: React.FC = () => {
         return <Signup onNavigate={setCurrentScreen} />;
       case 'ONBOARDING':
         return <Onboarding onNavigate={setCurrentScreen} />;
+      case 'ADD_PLAYLIST':
+        return <Onboarding onNavigate={setCurrentScreen} skipRedirect={true} />;
       case 'DASHBOARD':
         return <Dashboard onNavigate={setCurrentScreen} onSelectPlaylist={setSelectedPlaylistId} />;
       case 'PLAYLIST_DETAIL':

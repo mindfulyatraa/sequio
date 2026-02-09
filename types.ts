@@ -3,6 +3,7 @@ export type ScreenType =
   | 'LOGIN'
   | 'SIGNUP'
   | 'ONBOARDING'
+  | 'ADD_PLAYLIST'
   | 'DASHBOARD'
   | 'PLAYLIST_DETAIL'
   | 'REMINDERS'
@@ -11,6 +12,7 @@ export type ScreenType =
   | 'ADMIN_DASHBOARD'
   | 'ADMIN_QUEUES'
   | 'ADMIN_COST';
+
 
 export interface NavItem {
   id: ScreenType;

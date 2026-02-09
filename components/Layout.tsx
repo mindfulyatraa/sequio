@@ -13,7 +13,7 @@ export const Layout: React.FC<LayoutProps> = ({ currentScreen, onNavigate, child
   const { logout } = useAuth();
 
   // For Landing, Login, Signup, Onboarding pages, render without sidebar
-  if (['LANDING', 'LOGIN', 'SIGNUP', 'ONBOARDING'].includes(currentScreen)) {
+  if (['LANDING', 'LOGIN', 'SIGNUP', 'ONBOARDING', 'ADD_PLAYLIST'].includes(currentScreen)) {
     return <>{children}</>;
   }
 
