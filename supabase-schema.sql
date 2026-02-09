@@ -62,6 +62,8 @@ CREATE TABLE IF NOT EXISTS notification_settings (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   telegram_chat_id TEXT,
   telegram_enabled BOOLEAN DEFAULT FALSE,
+  telegram_verification_code VARCHAR(6),
+  telegram_verified_at TIMESTAMPTZ,
   whatsapp_number TEXT,
   whatsapp_enabled BOOLEAN DEFAULT FALSE,
   email_enabled BOOLEAN DEFAULT TRUE,
@@ -71,6 +73,8 @@ CREATE TABLE IF NOT EXISTS notification_settings (
 );
 
 CREATE INDEX IF NOT EXISTS idx_notification_settings_user_id ON notification_settings(user_id);
+CREATE INDEX IF NOT EXISTS idx_notification_settings_verification_code ON notification_settings(telegram_verification_code) WHERE telegram_verified_at IS NULL;
+
 
 -- ============================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
@@ -180,3 +184,40 @@ CREATE TRIGGER update_playlists_updated_at BEFORE UPDATE ON playlists
 
 CREATE TRIGGER update_notification_settings_updated_at BEFORE UPDATE ON notification_settings
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================
+-- 5. Video Reminders Table (for Telegram bot)
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS video_reminders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  video_id UUID REFERENCES videos(id) ON DELETE CASCADE,
+  remind_at TIMESTAMPTZ NOT NULL,
+  reminded BOOLEAN DEFAULT FALSE,
+  marked_watched BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, video_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_video_reminders_user_id ON video_reminders(user_id);
+CREATE INDEX IF NOT EXISTS idx_video_reminders_remind_at ON video_reminders(remind_at) WHERE reminded = FALSE;
+
+-- Enable RLS on video_reminders
+ALTER TABLE video_reminders ENABLE ROW LEVEL SECURITY;
+
+-- video_reminders policies
+CREATE POLICY "Users can view own reminders" ON video_reminders
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own reminders" ON video_reminders
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own reminders" ON video_reminders
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own reminders" ON video_reminders
+  FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "Service role can manage reminders" ON video_reminders
+  FOR ALL USING (auth.jwt()->>'role' = 'service_role');

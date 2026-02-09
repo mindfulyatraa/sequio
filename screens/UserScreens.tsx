@@ -520,9 +520,190 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
 
 export const Settings: React.FC = () => {
   const { user } = useAuth();
+  const [telegramConnected, setTelegramConnected] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  // Import dynamically to avoid bundling issues
+  useEffect(() => {
+    checkTelegramStatus();
+  }, [user]);
+
+  const checkTelegramStatus = async () => {
+    if (!user) return;
+
+    try {
+      const { getTelegramStatus } = await import('../src/utils/telegram');
+      const status = await getTelegramStatus(user.id);
+      setTelegramConnected(!!status.telegram_enabled);
+    } catch (err) {
+      console.error('Error checking Telegram status:', err);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!user) return;
+    if (verificationCode.length !== 6) {
+      setError('Please enter a 6-character code');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const { verifyTelegramCode } = await import('../src/utils/telegram');
+      await verifyTelegramCode(user.id, verificationCode.toUpperCase());
+      setSuccess('Telegram connected successfully! 🎉');
+      setTelegramConnected(true);
+      setVerificationCode('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to verify code. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    if (!user) return;
+    if (!confirm('Are you sure you want to disconnect Telegram?')) return;
+
+    setLoading(true);
+    try {
+      const { disconnectTelegram } = await import('../src/utils/telegram');
+      await disconnectTelegram(user.id);
+      setTelegramConnected(false);
+      setSuccess('Telegram disconnected successfully');
+    } catch (err: any) {
+      setError(err.message || 'Failed to disconnect');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const botUsername = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'your_bot_username_bot';
+
   return (
     <div className="max-w-3xl space-y-8">
       <h2 className="text-3xl font-black text-white">Settings</h2>
+
+      {/* Telegram Integration Section */}
+      <section className="bg-surface p-6 rounded-xl border border-border">
+        <div className="flex items-center gap-2 mb-6">
+          <Icon name="telegram" className="text-primary text-xl" />
+          <h3 className="text-lg font-semibold text-white">Telegram Notifications</h3>
+        </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl mb-4 flex items-start gap-3">
+            <Icon name="error" className="text-xl shrink-0 mt-0.5" />
+            <p className="text-sm">{error}</p>
+          </div>
+        )}
+
+        {success && (
+          <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-xl mb-4 flex items-start gap-3">
+            <Icon name="check_circle" className="text-xl shrink-0 mt-0.5" />
+            <p className="text-sm">{success}</p>
+          </div>
+        )}
+
+        {!telegramConnected ? (
+          <div className="space-y-4">
+            <p className="text-slate-400 text-sm">
+              Connect your Telegram account to receive instant notifications when new videos are added to your playlists.
+            </p>
+
+            {/* Step 1: Open Bot */}
+            <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-primary text-white font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center">1</span>
+                <p className="text-white font-medium text-sm">Open Telegram Bot</p>
+              </div>
+              <p className="text-slate-400 text-xs mb-3 ml-8">Click the button below to open our bot in Telegram</p>
+              <a
+                href={`https://t.me/${botUsername}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-8 inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white font-bold py-2.5 px-5 rounded-xl transition-all"
+              >
+                <Icon name="telegram" />
+                Open Bot in Telegram
+              </a>
+            </div>
+
+            {/* Step 2: Get Code */}
+            <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-primary text-white font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center">2</span>
+                <p className="text-white font-medium text-sm">Get Verification Code</p>
+              </div>
+              <p className="text-slate-400 text-xs ml-8">Send <code className="bg-background px-2 py-0.5 rounded text-primary font-mono">/start</code> to the bot to receive your 6-character code</p>
+            </div>
+
+            {/* Step 3: Verify Code */}
+            <div className="bg-background/50 rounded-xl p-4 border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-primary text-white font-bold text-xs w-6 h-6 rounded-full flex items-center justify-center">3</span>
+                <p className="text-white font-medium text-sm">Enter Verification Code</p>
+              </div>
+              <div className="flex gap-3 mt-3 ml-8">
+                <input
+                  type="text"
+                  maxLength={6}
+                  placeholder="ABC123"
+                  value={verificationCode}
+                  onChange={(e) => {
+                    setVerificationCode(e.target.value.toUpperCase());
+                    setError(null);
+                  }}
+                  className="flex-1 bg-background border border-border rounded-lg px-4 py-2.5 text-white font-mono text-lg tracking-wider uppercase focus:border-primary focus:outline-none placeholder:text-slate-600"
+                  disabled={loading}
+                />
+                <button
+                  onClick={handleVerifyCode}
+                  disabled={loading || verificationCode.length !== 6}
+                  className="bg-primary hover:bg-primary-hover text-white font-bold px-6 py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <Icon name="autorenew" className="animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="check_circle" />
+                      Verify
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+              <div className="w-3 h-3 rounded-full bg-success animate-pulse"></div>
+              <div className="flex-1">
+                <p className="text-white font-semibold">Telegram Connected</p>
+                <p className="text-sm text-slate-400">You'll receive notifications for new videos</p>
+              </div>
+              <button
+                onClick={handleDisconnect}
+                disabled={loading}
+                className="text-red-400 hover:text-red-300 font-medium text-sm transition-colors disabled:opacity-50"
+              >
+                Disconnect
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Profile Section */}
       <section className="bg-surface p-6 rounded-xl border border-border">
         <div className="flex items-center gap-2 mb-6">
           <Icon name="person" className="text-primary text-xl" />
@@ -531,17 +712,17 @@ export const Settings: React.FC = () => {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-400 mb-1.5">Full Name</label>
-            <input type="text" defaultValue={user?.name} className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-white focus:border-primary focus:outline-none" />
+            <input type="text" defaultValue={user?.user_metadata?.full_name || user?.email?.split('@')[0]} className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-white focus:border-primary focus:outline-none" />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-400 mb-1.5">Email</label>
-            <input type="email" defaultValue={user?.email} className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-white focus:border-primary focus:outline-none" />
+            <input type="email" defaultValue={user?.email} className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-white focus:border-primary focus:outline-none" disabled />
           </div>
         </div>
       </section>
     </div>
-  )
-}
+  );
+};
 
 export const Reminders: React.FC = () => {
   return (
