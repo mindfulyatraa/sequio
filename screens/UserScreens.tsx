@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../components/Icon';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserPlaylists } from '../src/utils/playlist';
+import { getUserPlaylists, deletePlaylist } from '../src/utils/playlist';
 
 interface Playlist {
   id: string;
@@ -25,10 +25,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onSelectPlayli
   const { user } = useAuth();
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPlaylists();
   }, [user]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const fetchPlaylists = async () => {
     if (!user) return;
@@ -40,6 +48,19 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onSelectPlayli
       console.error('Error fetching playlists:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeletePlaylist = async (playlistId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm('Are you sure you want to limit monitoring for this playlist?')) return;
+
+    try {
+      setPlaylists(prev => prev.filter(p => p.id !== playlistId));
+      await deletePlaylist(playlistId);
+    } catch (err) {
+      console.error('Error deleting playlist:', err);
+      fetchPlaylists(); // Revert on error
     }
   };
 
@@ -162,17 +183,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onSelectPlayli
                     {playlist.video_count} videos • Added {new Date(playlist.created_at).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 relative">
                   <span className="text-xs font-bold px-3 py-1 rounded-full bg-success/10 text-success">Active</span>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Show menu logic here
+                      setActiveMenuId(activeMenuId === playlist.id ? null : playlist.id);
                     }}
                     className="text-slate-400 hover:text-white p-2 hover:bg-white/10 rounded-full transition-colors"
                   >
                     <Icon name="more_vert" />
                   </button>
+
+                  {activeMenuId === playlist.id && (
+                    <div className="absolute right-0 top-10 w-48 bg-surface border border-border rounded-xl shadow-xl z-10 overflow-hidden">
+                      <button
+                        onClick={(e) => handleDeletePlaylist(playlist.id, e)}
+                        className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-white/5 flex items-center gap-2"
+                      >
+                        <Icon name="delete" className="text-lg" />
+                        Delete Playlist
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))
