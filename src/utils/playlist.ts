@@ -91,10 +91,10 @@ export async function addPlaylist(userId: string, playlistUrl: string) {
  * Sync videos for a playlist from YouTube API
  */
 export async function syncPlaylistVideos(id: string) {
-    // 1. Get playlist details
+    // 1. Get playlist details including user_id for RLS
     const { data: playlist } = await supabase
         .from('playlists')
-        .select('playlist_id')
+        .select('playlist_id, user_id')
         .eq('id', id)
         .single();
 
@@ -137,9 +137,10 @@ export async function syncPlaylistVideos(id: string) {
         return;
     }
 
-    // 5. Transform for DB
+    // 5. Transform for DB - include user_id for RLS policy
     const dbVideos = newVideos.map(v => ({
         playlist_id: id,
+        user_id: playlist.user_id,  // Required for RLS
         video_id: v.videoId,
         title: v.title,
         description: v.description,
