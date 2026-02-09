@@ -119,8 +119,26 @@ export async function syncPlaylistVideos(id: string) {
         throw new Error('No videos found in YouTube playlist. Check if playlist is private or empty.');
     }
 
-    // 3. Transform for DB
-    const dbVideos = videos.map(v => ({
+    // 3. Get existing video IDs for this playlist to avoid duplicates
+    const { data: existingVideos } = await supabase
+        .from('videos')
+        .select('video_id')
+        .eq('playlist_id', id);
+
+    const existingVideoIds = new Set((existingVideos || []).map(v => v.video_id));
+
+    // 4. Filter out already synced videos
+    const newVideos = videos.filter(v => !existingVideoIds.has(v.videoId));
+
+    console.log(`Found ${existingVideoIds.size} existing videos, ${newVideos.length} new videos to add`);
+
+    if (newVideos.length === 0) {
+        console.log('All videos already synced');
+        return;
+    }
+
+    // 5. Transform for DB
+    const dbVideos = newVideos.map(v => ({
         playlist_id: id,
         video_id: v.videoId,
         title: v.title,
@@ -130,14 +148,17 @@ export async function syncPlaylistVideos(id: string) {
         is_new: true
     }));
 
-    // 4. Upsert into videos table
-    // We use upsert with ignoreDuplicates to avoid overwriting existing 'is_new' status
-    // Note: This relies on a unique constraint on (playlist_id, video_id)
+    // 6. Insert new videos (no upsert needed now since we filtered)
     const { error } = await supabase
         .from('videos')
-        .upsert(dbVideos, { onConflict: 'playlist_id,video_id', ignoreDuplicates: true });
+        .insert(dbVideos);
 
-    if (error) throw error;
+    if (error) {
+        console.error('Supabase insert error:', error);
+        throw new Error(`Database Error: ${error.message}`);
+    }
+
+    console.log(`Successfully inserted ${dbVideos.length} videos`);
 }
 
 /**
