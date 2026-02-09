@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../components/Icon';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserPlaylists, deletePlaylist } from '../src/utils/playlist';
+import { getUserPlaylists, deletePlaylist, getPlaylistVideos, syncPlaylistVideos } from '../src/utils/playlist';
+import { supabase } from '../src/utils/supabase';
 
 interface Playlist {
   id: string;
@@ -235,25 +236,43 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate, onSelectPlayli
   );
 };
 
-import { getPlaylistVideos, syncPlaylistVideos } from '../src/utils/playlist';
-import { supabase } from '../src/utils/supabase';
-
 interface PlaylistDetailProps {
   playlistId: string | null;
   onNavigate: (screen: any) => void;
+  onSelectPlaylist: (id: string | null) => void;
 }
 
-export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNavigate }) => {
+export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNavigate, onSelectPlaylist }) => {
+  const { user } = useAuth();
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
+  // State for list view
+  const [allPlaylists, setAllPlaylists] = useState<Playlist[]>([]);
+  const [loadingList, setLoadingList] = useState(false);
+
   useEffect(() => {
     if (playlistId) {
       fetchPlaylistDetails();
+    } else {
+      fetchAllPlaylists();
     }
-  }, [playlistId]);
+  }, [playlistId, user]);
+
+  const fetchAllPlaylists = async () => {
+    if (!user) return;
+    try {
+      setLoadingList(true);
+      const data = await getUserPlaylists(user.id);
+      setAllPlaylists(data);
+    } catch (err) {
+      console.error('Error fetching playlists:', err);
+    } finally {
+      setLoadingList(false);
+    }
+  };
 
   const fetchPlaylistDetails = async () => {
     try {
@@ -298,18 +317,59 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
     }
   };
 
+  // Render list view if no playlist selected
   if (!playlistId) {
+    if (loadingList) {
+      return (
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      );
+    }
+
+    if (allPlaylists.length === 0) {
+      return (
+        <div className="text-white text-center p-10 bg-surface border border-border rounded-xl">
+          <Icon name="playlist_play" className="text-6xl text-slate-600 mb-4" />
+          <h2 className="text-2xl font-bold mb-2">No Playlists Found</h2>
+          <p className="text-slate-400">Add a playlist from the dashboard to get started.</p>
+          <button
+            onClick={() => onNavigate('ONBOARDING')}
+            className="mt-6 bg-primary hover:bg-primaryHover text-white font-bold py-2 px-6 rounded-xl transition-all"
+          >
+            Add Playlist
+          </button>
+        </div>
+      );
+    }
+
     return (
-      <div className="text-white text-center p-10 bg-surface border border-border rounded-xl">
-        <Icon name="playlist_play" className="text-6xl text-slate-600 mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Playlist Details</h2>
-        <p className="text-slate-400">Select a playlist from the dashboard to view details.</p>
-        <button
-          onClick={() => onNavigate('DASHBOARD')}
-          className="mt-6 text-primary hover:text-primary-hover font-bold"
-        >
-          Go to Dashboard
-        </button>
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-3xl font-black text-white mb-8">Your Playlists</h2>
+        <div className="grid gap-4">
+          {allPlaylists.map((p) => (
+            <div
+              key={p.id}
+              className="bg-surface p-4 rounded-xl border border-border hover:border-primary/50 transition-colors flex items-center gap-4 cursor-pointer group"
+              onClick={() => onSelectPlaylist(p.id)}
+            >
+              <div className="w-20 h-20 bg-primary/10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+                {p.thumbnail ? (
+                  <img src={p.thumbnail} alt={p.title} className="w-full h-full object-cover" />
+                ) : (
+                  <Icon name="playlist_play" className="text-primary text-3xl" filled />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-lg font-bold text-white truncate group-hover:text-primary transition-colors">{p.title || p.playlist_url}</h4>
+                <p className="text-sm text-slate-400 mt-1">
+                  {p.video_count} videos • {p.channel_name || 'Unknown Channel'}
+                </p>
+              </div>
+              <Icon name="chevron_right" className="text-slate-400 group-hover:text-white" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -339,11 +399,11 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
   return (
     <div className="max-w-4xl mx-auto">
       <button
-        onClick={() => onNavigate('DASHBOARD')}
+        onClick={() => onSelectPlaylist(null)}
         className="flex items-center gap-2 text-slate-400 hover:text-white mb-6 transition-colors"
       >
         <Icon name="arrow_back" />
-        <span>Back to Dashboard</span>
+        <span>Back to Playlists</span>
       </button>
 
       <div className="bg-surface rounded-2xl border border-border overflow-hidden mb-8">

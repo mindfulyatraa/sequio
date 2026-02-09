@@ -55,7 +55,11 @@ const AppContent: React.FC = () => {
       case 'DASHBOARD':
         return <Dashboard onNavigate={setCurrentScreen} onSelectPlaylist={setSelectedPlaylistId} />;
       case 'PLAYLIST_DETAIL':
-        return <PlaylistDetail playlistId={selectedPlaylistId} onNavigate={setCurrentScreen} />;
+        return <PlaylistDetail
+          playlistId={selectedPlaylistId}
+          onNavigate={setCurrentScreen}
+          onSelectPlaylist={setSelectedPlaylistId}
+        />;
       case 'SETTINGS':
         return <Settings />;
       case 'REMINDERS':
