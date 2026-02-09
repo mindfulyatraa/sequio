@@ -491,7 +491,7 @@ export const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onNa
           videos.map((video) => (
             <div key={video.id} className="bg-surface p-4 rounded-xl border border-border hover:border-primary/50 transition-colors flex gap-4 group">
               <div className="w-40 aspect-video bg-black/20 rounded-lg overflow-hidden shrink-0 relative">
-                <img src={video.thumbnail_url} alt={video.title} className="w-full h-full object-cover" />
+                <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                 <div className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
                   {new Date(video.published_at).toLocaleDateString()}
                 </div>

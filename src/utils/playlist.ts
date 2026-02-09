@@ -143,7 +143,7 @@ export async function syncPlaylistVideos(id: string) {
         video_id: v.videoId,
         title: v.title,
         description: v.description,
-        thumbnail_url: v.thumbnail,
+        thumbnail: v.thumbnail,
         published_at: v.publishedAt,
         is_new: true
     }));
