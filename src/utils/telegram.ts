@@ -47,11 +47,10 @@ export function generateVerificationCode(): string {
  */
 export async function verifyTelegramCode(userId: string, code: string) {
     try {
-        // Find notification settings with matching code
+        // Find notification settings with matching code (regardless of user_id)
         const { data, error } = await supabase
             .from('notification_settings')
             .select('*')
-            .eq('user_id', userId)
             .eq('telegram_verification_code', code)
             .is('telegram_verified_at', null)
             .single();
@@ -60,10 +59,11 @@ export async function verifyTelegramCode(userId: string, code: string) {
             throw new Error('Invalid verification code. Please check and try again.');
         }
 
-        // Mark as verified
+        // Update: link to logged-in user and mark as verified
         const { error: updateError } = await supabase
             .from('notification_settings')
             .update({
+                user_id: userId,
                 telegram_enabled: true,
                 telegram_verified_at: new Date().toISOString(),
                 telegram_verification_code: null
