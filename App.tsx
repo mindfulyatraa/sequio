@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const AppContent: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('LANDING');
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
   const { isAuthenticated, isLoading } = useAuth();
 
   // Guard protected routes
@@ -52,9 +53,9 @@ const AppContent: React.FC = () => {
       case 'ONBOARDING':
         return <Onboarding onNavigate={setCurrentScreen} />;
       case 'DASHBOARD':
-        return <Dashboard />;
+        return <Dashboard onNavigate={setCurrentScreen} onSelectPlaylist={setSelectedPlaylistId} />;
       case 'PLAYLIST_DETAIL':
-        return <PlaylistDetail />;
+        return <PlaylistDetail playlistId={selectedPlaylistId} onNavigate={setCurrentScreen} />;
       case 'SETTINGS':
         return <Settings />;
       case 'REMINDERS':
